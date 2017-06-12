@@ -238,7 +238,7 @@ namespace NeuralNetwork
 		private static void SetupFromFile()
 		{
 			_dataSets = new List<DataSet>();
-			var fileContent = File.ReadAllText("data.txt");
+			var fileContent = File.ReadAllText("data_neu.txt");
 			var lines = fileContent.Split(new []{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
 
 			if (lines.Length < 2)
