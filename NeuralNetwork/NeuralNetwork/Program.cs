@@ -9,7 +9,7 @@ namespace NeuralNetwork
 	internal class Program
 	{
 		#region -- Constants --
-		private const int MaxEpochs = 5000;
+		private const int MaxEpochs = 4000;
 		private const double MinimumError = 0.01;
 		private const TrainingType TrainingType = Network.TrainingType.MinimumError;
 		#endregion

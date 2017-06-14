@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NeuralNetwork.Network
@@ -12,6 +13,8 @@ namespace NeuralNetwork.Network
 		public double BiasDelta { get; set; }
 		public double Gradient { get; set; }
 		public double Value { get; set; }
+		public double m = 0;
+		public double s = 1;
 		#endregion
 
 		#region -- Constructors --
@@ -19,7 +22,10 @@ namespace NeuralNetwork.Network
 		{
 			InputSynapses = new List<Synapse>();
 			OutputSynapses = new List<Synapse>();
-			Bias = Network.GetRandom();
+			Bias = Network.GetRandom(m,s);
+			Console.WriteLine($"Bias:{Bias}");
+			
+			
 		}
 
 		public Neuron(IEnumerable<Neuron> inputNeurons) : this()
@@ -36,14 +42,14 @@ namespace NeuralNetwork.Network
 		#region -- Values & Weights --
 		public virtual double CalculateValue()
 		{
-			return Value = Sigmoid.Output(InputSynapses.Sum(a => a.Weight * a.InputNeuron.Value) + Bias);
+			return Value = Sigmoid.Output(InputSynapses.Sum(a => a.Weight * a.InputNeuron.Value)+ Bias);
 		}
 
 		public double CalculateError(double target)
 		{
 			return target - Value;
 		}
-
+		
 		public double CalculateGradient(double? target = null)
 		{
 			if(target == null)
@@ -63,7 +69,9 @@ namespace NeuralNetwork.Network
 				prevDelta = synapse.WeightDelta;
 				synapse.WeightDelta = learnRate * Gradient * synapse.InputNeuron.Value;
 				synapse.Weight += synapse.WeightDelta + momentum * prevDelta;
+				
 			}
+			
 		}
 		#endregion
 	}

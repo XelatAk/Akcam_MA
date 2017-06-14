@@ -1,4 +1,5 @@
-﻿namespace NeuralNetwork.Network
+﻿using System;
+namespace NeuralNetwork.Network
 {
 	public class Synapse
 	{
@@ -7,6 +8,8 @@
 		public Neuron OutputNeuron { get; set; }
 		public double Weight { get; set; }
 		public double WeightDelta { get; set; }
+		public double m = 0;
+		public double s = 1;
 		#endregion
 
 		#region -- Constructor --
@@ -14,7 +17,8 @@
 		{
 			InputNeuron = inputNeuron;
 			OutputNeuron = outputNeuron;
-			Weight = Network.GetRandom();
+			Weight = Network.GetRandom(m,s);
+			Console.WriteLine($"Weight:{Weight}");
 		}
 		#endregion
 	}

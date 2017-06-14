@@ -21,8 +21,8 @@ namespace NeuralNetwork.Network
 		#region -- Constructor --
 		public Network(int inputSize, int hiddenSize, int outputSize, double? learnRate = null, double? momentum = null)
 		{
-			LearnRate = learnRate ?? .4;
-			Momentum = momentum ?? .9;
+			LearnRate = learnRate ?? 1;
+			Momentum = momentum ?? .8;
 			InputLayer = new List<Neuron>();
 			HiddenLayer = new List<Neuron>();
 			OutputLayer = new List<Neuron>();
@@ -66,6 +66,7 @@ namespace NeuralNetwork.Network
 					errors.Add(CalculateError(dataSet.Targets));
 				}
 				error = errors.Average();
+				Console.WriteLine(error);   //edit
 				numEpochs++;
 			}
 		}
@@ -101,10 +102,48 @@ namespace NeuralNetwork.Network
 		#endregion
 
 		#region -- Helpers --
-		public static double GetRandom()
+		//public static double GetRandom()
+		//{
+		//	return 2 * Random.NextDouble() - 1;
+		//	//return 2 * Random.NextDouble() - 1 < 0 ? -1 : 1;
+			 
+		//}
+
+		/// <summary>
+		/// Compute a Gaussian random number.
+		/// </summary>
+		/// <param name="m">The mean.</param>
+		/// <param name="s">The standard deviation.</param>
+		/// <returns>The random number.</returns>
+		public static double GetRandom(double m, double s)
 		{
-			return 2 * Random.NextDouble() - 1;
-		}
+			double x1, x2, w, y1, y2=0;
+			bool useLast = false;
+
+			// Use value from previous call
+			if (useLast)
+			{
+				y1 = y2;
+				useLast = false;
+			}
+			else
+			{
+
+				do
+				{
+					x1 = 2.0d * Random.NextDouble() - 1.0d;    // NextDouble() is uniform in 0..1
+					x2 = 2.0d * Random.NextDouble() - 1.0d;
+					w = x1 * x1 + x2 * x2;
+				} while (w >= 1.0d);
+
+				w = Math.Sqrt((-2.0d * Math.Log(w)) / w);
+				y1 = x1 * w;
+				y2 = x2 * w;
+				useLast = true;
+			}
+
+			return (m + y1 * s);
+			}
 		#endregion
 	}
 
