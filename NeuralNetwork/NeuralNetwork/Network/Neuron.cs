@@ -14,7 +14,7 @@ namespace NeuralNetwork.Network
 		public double Gradient { get; set; }
 		public double Value { get; set; }
 		public double m = 0;
-		public double s = 1;
+		public double s = Math.Sqrt(3);
 		#endregion
 
 		#region -- Constructors --

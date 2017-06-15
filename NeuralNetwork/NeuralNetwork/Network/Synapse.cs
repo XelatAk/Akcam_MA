@@ -9,7 +9,7 @@ namespace NeuralNetwork.Network
 		public double Weight { get; set; }
 		public double WeightDelta { get; set; }
 		public double m = 0;
-		public double s = 1;
+		public double s = Math.Sqrt(3);
 		#endregion
 
 		#region -- Constructor --

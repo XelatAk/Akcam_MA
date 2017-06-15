@@ -21,8 +21,8 @@ namespace NeuralNetwork.Network
 		#region -- Constructor --
 		public Network(int inputSize, int hiddenSize, int outputSize, double? learnRate = null, double? momentum = null)
 		{
-			LearnRate = learnRate ?? 1;
-			Momentum = momentum ?? .8;
+			LearnRate = learnRate ?? 0.4;
+			Momentum = momentum ?? .3;
 			InputLayer = new List<Neuron>();
 			HiddenLayer = new List<Neuron>();
 			OutputLayer = new List<Neuron>();
@@ -144,6 +144,7 @@ namespace NeuralNetwork.Network
 
 			return (m + y1 * s);
 			}
+		
 		#endregion
 	}
 
