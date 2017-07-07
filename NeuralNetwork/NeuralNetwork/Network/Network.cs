@@ -7,7 +7,8 @@ namespace NeuralNetwork.Network
 	public class Network
 	{
 		#region -- Properties --
-		public double LearnRate { get; set; }
+		public double LearnRate_Output { get; set; }
+		public double LearnRate_Hidden { get; set; }
 		public double Momentum { get; set; }
 		public List<Neuron> InputLayer { get; set; }
 		public List<Neuron> HiddenLayer { get; set; }
@@ -19,10 +20,11 @@ namespace NeuralNetwork.Network
 		#endregion
 
 		#region -- Constructor --
-		public Network(int inputSize, int hiddenSize, int outputSize, double? learnRate = null, double? momentum = null)
+		public Network(int inputSize, int hiddenSize, int outputSize)//, double? learnRate_output = null, double? learnRate_hidden = null, double? momentum = null)
 		{
-			LearnRate = learnRate ?? 0.4;
-			Momentum = momentum ?? .3;
+			//LearnRate_Output = learnRate_output ?? 0.5;
+			//LearnRate_Hidden = learnRate_hidden ?? 0.7;
+			//Momentum = momentum ?? 0.0043;
 			InputLayer = new List<Neuron>();
 			HiddenLayer = new List<Neuron>();
 			OutputLayer = new List<Neuron>();
@@ -39,17 +41,17 @@ namespace NeuralNetwork.Network
 		#endregion
 
 		#region -- Training --
-		public void Train(List<DataSet> dataSets, int numEpochs)
-		{
-			for (var i = 0; i < numEpochs; i++)
-			{
-				foreach (var dataSet in dataSets)
-				{
-					ForwardPropagate(dataSet.Values);
-					BackPropagate(dataSet.Targets);
-				}
-			}
-		}
+		//public void Train(List<DataSet> dataSets, int numEpochs)
+		//{
+		//	for (var i = 0; i < numEpochs; i++)
+		//	{
+		//		foreach (var dataSet in dataSets)
+		//		{
+		//			ForwardPropagate(dataSet.Values);
+		//			BackPropagate(dataSet.Targets);
+		//		}
+		//	}
+		//}
 
 		public void Train(List<DataSet> dataSets, double minimumError)
 		{
@@ -59,15 +61,52 @@ namespace NeuralNetwork.Network
 			while (error > minimumError && numEpochs < int.MaxValue)
 			{
 				var errors = new List<double>();
+
+				if (100 < numEpochs && numEpochs < 201)
+				{
+					LearnRate_Hidden = 0.4;
+					LearnRate_Output = 0.2;
+					Momentum = 0.2;
+				}
+				else if (200 < numEpochs && numEpochs < 401)
+				{
+					LearnRate_Hidden = 0.2;
+					LearnRate_Output = 0.15;
+					Momentum = 0.05;
+				}
+				else if (400 < numEpochs && numEpochs < 1001)
+				{
+					LearnRate_Hidden = 0.1;
+					LearnRate_Output = 0.05;
+					Momentum = 0.025;
+				}
+				else if (1000 < numEpochs)
+				{
+					LearnRate_Hidden = 0.05;
+					LearnRate_Output = 0.025;
+					Momentum = 0.01;
+				}
+				else
+				{
+					LearnRate_Hidden = 0.6;
+					LearnRate_Output = 0.3;
+					Momentum = 0.4;
+				}
+
 				foreach (var dataSet in dataSets)
 				{
 					ForwardPropagate(dataSet.Values);
 					BackPropagate(dataSet.Targets);
 					errors.Add(CalculateError(dataSet.Targets));
 				}
-				error = errors.Average();
-				Console.WriteLine(error);   //edit
+				error = errors.Average() * 0.5;
+				Console.WriteLine($"Average Error:{error}");
+				//Console.WriteLine(LearnRate_Hidden);
+				//Console.WriteLine(LearnRate_Output);
+				//Console.WriteLine(Momentum);
+				
 				numEpochs++;
+				
 			}
 		}
 
@@ -82,10 +121,12 @@ namespace NeuralNetwork.Network
 		private void BackPropagate(params double[] targets)
 		{
 			var i = 0;
+
 			OutputLayer.ForEach(a => a.CalculateGradient(targets[i++]));
 			HiddenLayer.ForEach(a => a.CalculateGradient());
-			HiddenLayer.ForEach(a => a.UpdateWeights(LearnRate, Momentum));
-			OutputLayer.ForEach(a => a.UpdateWeights(LearnRate, Momentum));
+			HiddenLayer.ForEach(a => a.UpdateWeights(LearnRate_Hidden, Momentum));
+			OutputLayer.ForEach(a => a.UpdateWeights(LearnRate_Output, Momentum));
+			
 		}
 
 		public double[] Compute(params double[] inputs)
@@ -94,60 +135,73 @@ namespace NeuralNetwork.Network
 			return OutputLayer.Select(a => a.Value).ToArray();
 		}
 
-		private double CalculateError(params double[] targets)
+		private double CalculateError(params double[] targets)  //edit
 		{
 			var i = 0;
-			return OutputLayer.Sum(a => Math.Abs(a.CalculateError(targets[i++])));
+			return OutputLayer.Sum(a => a.CalculateError(targets[i++]));
+			//return OutputLayer.Sum(a => Math.Abs(a.CalculateError(targets[i++])));
 		}
+
 		#endregion
 
 		#region -- Helpers --
-		//public static double GetRandom()
+		#region -- Normal Distribution--
+		////public static double GetRandom()
+		////{
+		////	return 2 * Random.NextDouble() - 1;
+		////	//return 2 * Random.NextDouble() - 1 < 0 ? -1 : 1;
+
+		////}
+
+		///// <summary>
+		///// Compute a Gaussian random number.
+		///// </summary>
+		///// <param name="m">The mean.</param>
+		///// <param name="s">The standard deviation.</param>
+		///// <returns>The random number.</returns>
+		//public static double GetRandom(double m, double s)
 		//{
-		//	return 2 * Random.NextDouble() - 1;
-		//	//return 2 * Random.NextDouble() - 1 < 0 ? -1 : 1;
-			 
-		//}
+		//	double x1, x2, w, y1, y2=0;
+		//	bool useLast = false;
 
-		/// <summary>
-		/// Compute a Gaussian random number.
-		/// </summary>
-		/// <param name="m">The mean.</param>
-		/// <param name="s">The standard deviation.</param>
-		/// <returns>The random number.</returns>
-		public static double GetRandom(double m, double s)
-		{
-			double x1, x2, w, y1, y2=0;
-			bool useLast = false;
+		//	// Use value from previous call
+		//	if (useLast)
+		//	{
+		//		y1 = y2;
+		//		useLast = false;
+		//	}
+		//	else
+		//	{
 
-			// Use value from previous call
-			if (useLast)
-			{
-				y1 = y2;
-				useLast = false;
-			}
-			else
-			{
+		//		do
+		//		{
+		//			x1 = 2.0d * Random.NextDouble() - 1.0d;    // NextDouble() is uniform in 0..1
+		//			x2 = 2.0d * Random.NextDouble() - 1.0d;
+		//			w = x1 * x1 + x2 * x2;
+		//		} while (w >= 1.0d);
 
-				do
-				{
-					x1 = 2.0d * Random.NextDouble() - 1.0d;    // NextDouble() is uniform in 0..1
-					x2 = 2.0d * Random.NextDouble() - 1.0d;
-					w = x1 * x1 + x2 * x2;
-				} while (w >= 1.0d);
+		//		w = Math.Sqrt((-2.0d * Math.Log(w)) / w);
+		//		y1 = x1 * w;
+		//		y2 = x2 * w;
+		//		useLast = true;
+		//	}
 
-				w = Math.Sqrt((-2.0d * Math.Log(w)) / w);
-				y1 = x1 * w;
-				y2 = x2 * w;
-				useLast = true;
-			}
-
-			return (m + y1 * s);
-			}
-		
+		//	return (m + y1 * s);
+		//	}
 		#endregion
-	}
 
+		#region --Uniform Distribution--
+		public static double GetRandom(double min, double max)
+		{
+			double dbl = Random.NextDouble() * (max - min) + min;
+			Console.WriteLine(dbl.ToString());
+			return 0;
+		}
+		#endregion
+
+		#endregion
+
+	}
 	#region -- Enum --
 	public enum TrainingType
 	{

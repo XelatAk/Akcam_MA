@@ -9,8 +9,8 @@ namespace NeuralNetwork
 	internal class Program
 	{
 		#region -- Constants --
-		private const int MaxEpochs = 40;
-		private const double MinimumError = 0.18;
+		private const int MaxEpochs = 4000;
+		private const double MinimumError = 0.01;
 		private const TrainingType TrainingType = Network.TrainingType.MinimumError;
 		#endregion
 
@@ -20,6 +20,7 @@ namespace NeuralNetwork
 		private static int _numOutputParameters;
 		private static Network.Network _network;
 		private static List<DataSet> _dataSets; 
+	
 		#endregion
 
 		#region -- Main --
@@ -98,7 +99,9 @@ namespace NeuralNetwork
 
 		private static void Train()
 		{
+			Console.WriteLine($"Count: {_dataSets.Count}");
 			_network.Train(_dataSets, TrainingType == TrainingType.Epoch ? MaxEpochs : MinimumError);
+			//To Do: Save Trainingdata
 		}
 		#endregion
 
@@ -141,7 +144,7 @@ namespace NeuralNetwork
 		private static void SetNumNeuronsInHiddenLayer()
 		{
 			Console.WriteLine("How many neurons in the hidden layer? (2 or more)");
-			_numHiddenLayerNeurons = GetInput("Neurons: ", 2);
+			_numHiddenLayerNeurons = GetInput("Neurons: ", 1);    //edit
 			PrintNewLine(2);
 		}
 
@@ -258,8 +261,8 @@ namespace NeuralNetwork
 				if (_numInputParameters < 2)
 					WriteError("The number of input parameters must be greater than or equal to 2.");
 
-				if (_numHiddenLayerNeurons < 2)
-					WriteError("The number of hidden neurons must be greater than or equal to 2.");
+				if (_numHiddenLayerNeurons < 1) 
+					WriteError("The number of hidden neurons must be greater than or equal to 1."); //edit
 
 				if (_numOutputParameters < 1)
 					WriteError("The number of hidden neurons must be greater than or equal to 1.");

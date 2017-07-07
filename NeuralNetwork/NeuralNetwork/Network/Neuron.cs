@@ -13,8 +13,9 @@ namespace NeuralNetwork.Network
 		public double BiasDelta { get; set; }
 		public double Gradient { get; set; }
 		public double Value { get; set; }
-		public double m = 0;
-		public double s = Math.Sqrt(3);
+		public double min = -0.5;
+		public double max = 0.5;
+		
 		#endregion
 
 		#region -- Constructors --
@@ -22,10 +23,8 @@ namespace NeuralNetwork.Network
 		{
 			InputSynapses = new List<Synapse>();
 			OutputSynapses = new List<Synapse>();
-			Bias = Network.GetRandom(m,s);
+			Bias = Network.GetRandom(min,max);
 			Console.WriteLine($"Bias:{Bias}");
-			
-			
 		}
 
 		public Neuron(IEnumerable<Neuron> inputNeurons) : this()
@@ -42,20 +41,22 @@ namespace NeuralNetwork.Network
 		#region -- Values & Weights --
 		public virtual double CalculateValue()
 		{
-			return Value = Sigmoid.Output(InputSynapses.Sum(a => a.Weight * a.InputNeuron.Value)+ Bias);
-		}
-
-		public double CalculateError(double target)
-		{
-			return target - Value;
+			return Value = Sigmoid.Output(InputSynapses.Sum(a => a.Weight * a.InputNeuron.Value) + Bias);
+			
 		}
 		
+		public double CalculateError(double target)
+		{
+			return Math.Abs(target - Value);
+		}
+				
 		public double CalculateGradient(double? target = null)
 		{
-			if(target == null)
+			if (target == null)
 				return Gradient = OutputSynapses.Sum(a => a.OutputNeuron.Gradient * a.Weight) * Sigmoid.Derivative(Value);
 
-			return Gradient = CalculateError(target.Value) * Sigmoid.Derivative(Value);
+			else //edit
+				return Gradient = CalculateError(target.Value) * Sigmoid.Derivative(Value);
 		}
 
 		public void UpdateWeights(double learnRate, double momentum)
@@ -69,7 +70,6 @@ namespace NeuralNetwork.Network
 				prevDelta = synapse.WeightDelta;
 				synapse.WeightDelta = learnRate * Gradient * synapse.InputNeuron.Value;
 				synapse.Weight += synapse.WeightDelta + momentum * prevDelta;
-				
 			}
 			
 		}
