@@ -9,8 +9,8 @@ namespace NeuralNetwork.Network
 		public Neuron OutputNeuron { get; set; }
 		public double Weight { get; set; }
 		public double WeightDelta { get; set; }
-		public double min = -0.5;
-		public double max = 0.5;
+		public double min = -0.2;
+		public double max = 0.2;		
 		#endregion
 
 		#region -- Constructor --

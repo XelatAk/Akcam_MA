@@ -62,33 +62,40 @@ namespace NeuralNetwork.Network
 			{
 				var errors = new List<double>();
 
-				if (100 < numEpochs && numEpochs < 201)
+				if (200 < numEpochs && numEpochs < 801 && 6000 < numEpochs && numEpochs < 7001 )
 				{
 					LearnRate_Hidden = 0.4;
 					LearnRate_Output = 0.2;
 					Momentum = 0.2;
 				}
-				else if (200 < numEpochs && numEpochs < 401)
+				else if (800 < numEpochs && numEpochs < 1301 && 7000 < numEpochs && numEpochs < 8001)
 				{
 					LearnRate_Hidden = 0.2;
 					LearnRate_Output = 0.15;
 					Momentum = 0.05;
 				}
-				else if (400 < numEpochs && numEpochs < 1001)
+				else if (1300 < numEpochs && numEpochs < 2001 && 8000 < numEpochs && numEpochs < 9001)
 				{
 					LearnRate_Hidden = 0.1;
 					LearnRate_Output = 0.05;
 					Momentum = 0.025;
 				}
-				else if (1000 < numEpochs)
+				else if (2000 < numEpochs && numEpochs < 5001 && 9000 < numEpochs && numEpochs < 10001)
 				{
 					LearnRate_Hidden = 0.05;
 					LearnRate_Output = 0.025;
 					Momentum = 0.01;
 				}
+
+				else if (5000 < numEpochs && numEpochs < 6001 && 10000 < numEpochs)
+				{
+					LearnRate_Hidden = 0.025;
+					LearnRate_Output = 0.01;
+					Momentum = 0.005;
+				}
 				else
 				{
-					LearnRate_Hidden = 0.6;
+					LearnRate_Hidden = 0.7;
 					LearnRate_Output = 0.3;
 					Momentum = 0.4;
 				}
@@ -99,12 +106,12 @@ namespace NeuralNetwork.Network
 					BackPropagate(dataSet.Targets);
 					errors.Add(CalculateError(dataSet.Targets));
 				}
-				error = errors.Average() * 0.5;
+				error = errors.Average();
 				Console.WriteLine($"Average Error:{error}");
 				//Console.WriteLine(LearnRate_Hidden);
 				//Console.WriteLine(LearnRate_Output);
 				//Console.WriteLine(Momentum);
-				
+
 				numEpochs++;
 				
 			}

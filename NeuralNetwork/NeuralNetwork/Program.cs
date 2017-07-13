@@ -11,7 +11,8 @@ namespace NeuralNetwork
 		#region -- Constants --
 		private const int MaxEpochs = 4000;
 		private const double MinimumError = 0.01;
-		private const TrainingType TrainingType = Network.TrainingType.MinimumError;
+		private const double MinOptimum = 0.9;
+		private const TrainingType TrainingType = Network.TrainingType.Epoch;
 		#endregion
 
 		#region -- Variables --
@@ -19,8 +20,9 @@ namespace NeuralNetwork
 		private static int _numHiddenLayerNeurons;
 		private static int _numOutputParameters;
 		private static Network.Network _network;
-		private static List<DataSet> _dataSets; 
-	
+		private static List<DataSet> _dataSets;
+		private static List<double> _rate;
+
 		#endregion
 
 		#region -- Main --
@@ -46,11 +48,26 @@ namespace NeuralNetwork
 			Console.WriteLine("Training Complete!");
 			PrintNewLine();
 		}
-
+		
 		private static void VerifyTraining()
 		{
 			Console.WriteLine("Let's test it!");
 			PrintNewLine();
+
+			if (GetBool("Do you want to read from the space delimited test.txt file? (yes/no/exit)"))
+			{
+				SetupFromTestFile();
+			}
+			else
+			{
+				SelfTesting();
+			}
+		}
+
+		private static void SelfTesting()
+		{
+			//Console.WriteLine("Let's test it!");
+			//PrintNewLine();
 
 			while (true)
 			{
@@ -61,7 +78,7 @@ namespace NeuralNetwork
 
 				foreach (var result in results)
 				{
-				    Console.WriteLine($"Output: {result}");
+					Console.WriteLine($"Output: {result}");
 				}
 
 				PrintNewLine();
@@ -76,7 +93,7 @@ namespace NeuralNetwork
 					_dataSets.Remove(offendingDataSet);
 
 					var expectedResults = GetExpectedResult("What were the expected results?");
-					if(!_dataSets.Exists(x => x.Values.SequenceEqual(values) && x.Targets.SequenceEqual(expectedResults)))
+					if (!_dataSets.Exists(x => x.Values.SequenceEqual(values) && x.Targets.SequenceEqual(expectedResults)))
 						_dataSets.Add(new DataSet(values, expectedResults));
 
 					PrintNewLine();
@@ -101,7 +118,7 @@ namespace NeuralNetwork
 		{
 			Console.WriteLine($"Count: {_dataSets.Count}");
 			_network.Train(_dataSets, TrainingType == TrainingType.Epoch ? MaxEpochs : MinimumError);
-			//To Do: Save Trainingdata
+		
 		}
 		#endregion
 
@@ -177,7 +194,7 @@ namespace NeuralNetwork
 
 			while (line == null || line.Split(' ').Length != _numInputParameters)
 			{
-			    Console.WriteLine($"{_numInputParameters} inputs are required.");
+				Console.WriteLine($"{_numInputParameters} inputs are required.");
 				PrintNewLine();
 				Console.WriteLine(message);
 				line = GetLine();
@@ -185,7 +202,7 @@ namespace NeuralNetwork
 
 			var values = new double[_numInputParameters];
 			var lineNums = line.Split(' ');
-			for(var i = 0; i < lineNums.Length; i++)
+			for (var i = 0; i < lineNums.Length; i++)
 			{
 				double num;
 				if (double.TryParse(lineNums[i], out num))
@@ -210,7 +227,7 @@ namespace NeuralNetwork
 
 			while (line == null || line.Split(' ').Length != _numOutputParameters)
 			{
-			    Console.WriteLine($"{_numOutputParameters} outputs are required.");
+				Console.WriteLine($"{_numOutputParameters} outputs are required.");
 				PrintNewLine();
 				Console.WriteLine(message);
 				line = GetLine();
@@ -242,7 +259,7 @@ namespace NeuralNetwork
 		{
 			_dataSets = new List<DataSet>();
 			var fileContent = File.ReadAllText("data_neu.txt");
-			var lines = fileContent.Split(new []{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+			var lines = fileContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
 			if (lines.Length < 2)
 			{
@@ -261,7 +278,7 @@ namespace NeuralNetwork
 				if (_numInputParameters < 2)
 					WriteError("The number of input parameters must be greater than or equal to 2.");
 
-				if (_numHiddenLayerNeurons < 1) 
+				if (_numHiddenLayerNeurons < 1)
 					WriteError("The number of hidden neurons must be greater than or equal to 1."); //edit
 
 				if (_numOutputParameters < 1)
@@ -289,13 +306,99 @@ namespace NeuralNetwork
 				{
 					int num;
 					if (!int.TryParse(items[_numInputParameters + i], out num))
-					    Console.WriteLine($"The data file is malformed.  On line {lineIndex}, output paramater {items[i]} is not a valid number.");
+						Console.WriteLine($"The data file is malformed.  On line {lineIndex}, output paramater {items[i]} is not a valid number.");
 					else
 						expectedResults[i] = num;
 				}
 				_dataSets.Add(new DataSet(values, expectedResults));
 			}
 		}
+		#endregion
+		#region -- I/O Help 2 --
+		private static void SetupFromTestFile()
+		{
+			_dataSets = new List<DataSet>();
+			_rate = new List<double>();
+			double optimumRate;
+			var fileContent = File.ReadAllText("test.txt");
+			var lines = fileContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+		
+			for (var lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+			{
+				var items = lines[lineIndex].Split(' ');
+				if (items.Length != _numInputParameters + _numOutputParameters)
+					WriteError($"The data file is malformed.  There were {items.Length} elements on line {lineIndex + 1} instead of {_numInputParameters + _numOutputParameters}");
+
+				var values = new double[_numInputParameters];
+				for (var i = 0; i < _numInputParameters; i++)
+				{
+					double num;
+					if (!double.TryParse(items[i], out num))
+						WriteError($"The data file is malformed.  On line {lineIndex + 1}, input parameter {items[i]} is not a valid number.");
+					else
+						values[i] = num;
+				}
+
+				var expectedResults = new double[_numOutputParameters];
+				for (var i = 0; i < _numOutputParameters; i++)
+				{
+					int num;
+					if (!int.TryParse(items[_numInputParameters + i], out num))
+						Console.WriteLine($"The data file is malformed.  On line {lineIndex}, output paramater {items[i]} is not a valid number.");
+					else
+						expectedResults[i] = num;
+				}
+				_dataSets.Add(new DataSet(values, expectedResults));
+			
+				var results = _network.Compute(values);
+				PrintNewLine();
+				var convertedResults = new double[results.Length];
+
+				for (var i = 0; i < results.Length; i++)
+					{ convertedResults[i] = results[i] > 0.5 ? 1 : 0; }
+			
+				//Berechnung der prozentualen Richtigkeit des Netzes anhand von Testdaten
+				double rate = 0;
+				for (var i=0; i<results.Length; i++)
+				{
+					if (convertedResults[i] == expectedResults[i])
+				
+						rate += 1;
+					else
+						rate += 0;
+					//Console.WriteLine($"Output: {convertedResults[i]}");
+					//Console.WriteLine($"Expected result:{expectedResults[i]}");
+					//Console.WriteLine($"Rate:{rate}");
+					//Console.ReadLine();
+
+				}
+
+				rate = rate / results.Length;
+				_rate.Add(rate);
+				
+				//Console.WriteLine($"Rate Average:{rate}");
+				//Console.ReadLine();
+				//PrintNewLine();
+				
+			}
+			optimumRate=_rate.Average();
+			Console.WriteLine($"Percentage of times obtaining the optimum: {optimumRate}");
+			Console.ReadLine();
+
+			//Nochmal trainieren, wenn Fehlerrate über einer Schwelle liegt
+
+			if (optimumRate < MinOptimum)
+			{
+				Train();
+			}
+			else
+			{
+				Console.WriteLine("Now Test the Network with some Inputs");
+				SelfTesting();
+			}
+			
+		}
+
 		#endregion
 
 		#region -- Console Helpers --
