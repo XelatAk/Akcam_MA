@@ -10,9 +10,9 @@ namespace NeuralNetwork
 	{
 		#region -- Constants --
 		private const int MaxEpochs = 4000;
-		private const double MinimumError = 0.01;
-		private const double MinOptimum = 0.9;
-		private const TrainingType TrainingType = Network.TrainingType.Epoch;
+		private const double MinimumError = 0.05;
+		private const double MinOptimum = 0.8;
+		private const TrainingType TrainingType = Network.TrainingType.MinimumError;
 		#endregion
 
 		#region -- Variables --
@@ -66,8 +66,10 @@ namespace NeuralNetwork
 
 		private static void SelfTesting()
 		{
-			//Console.WriteLine("Let's test it!");
-			//PrintNewLine();
+			Console.WriteLine("Now Test the Network with some Inputs. The order of the inputs should be:");
+			PrintNewLine();
+			Console.WriteLine("inventory carrying cost , set-up cost , set-up time , production/ordering cost , demand for each period");
+			PrintNewLine();
 
 			while (true)
 			{
@@ -316,20 +318,21 @@ namespace NeuralNetwork
 		#endregion
 		#region -- I/O Help 2 --
 		private static void SetupFromTestFile()
-		{
-			_dataSets = new List<DataSet>();
+		{			
 			_rate = new List<double>();
 			double optimumRate;
 			var fileContent = File.ReadAllText("test.txt");
 			var lines = fileContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-		
+		var values = new double[_numInputParameters];
+			var results = _network.Compute(values);
+			var convertedResults = new double[results.Length];
 			for (var lineIndex = 0; lineIndex < lines.Length; lineIndex++)
 			{
 				var items = lines[lineIndex].Split(' ');
 				if (items.Length != _numInputParameters + _numOutputParameters)
 					WriteError($"The data file is malformed.  There were {items.Length} elements on line {lineIndex + 1} instead of {_numInputParameters + _numOutputParameters}");
 
-				var values = new double[_numInputParameters];
+				
 				for (var i = 0; i < _numInputParameters; i++)
 				{
 					double num;
@@ -348,11 +351,8 @@ namespace NeuralNetwork
 					else
 						expectedResults[i] = num;
 				}
-				_dataSets.Add(new DataSet(values, expectedResults));
-			
-				var results = _network.Compute(values);
-				PrintNewLine();
-				var convertedResults = new double[results.Length];
+				if (!_dataSets.Exists(x => x.Values.SequenceEqual(values) && x.Targets.SequenceEqual(expectedResults)))
+					_dataSets.Add(new DataSet(values, expectedResults));
 
 				for (var i = 0; i < results.Length; i++)
 					{ convertedResults[i] = results[i] > 0.5 ? 1 : 0; }
@@ -366,12 +366,11 @@ namespace NeuralNetwork
 						rate += 1;
 					else
 						rate += 0;
-					//Console.WriteLine($"Output: {convertedResults[i]}");
-					//Console.WriteLine($"Expected result:{expectedResults[i]}");
-					//Console.WriteLine($"Rate:{rate}");
-					//Console.ReadLine();
-
 				}
+
+				Console.WriteLine($"Output: {string.Join(" ",convertedResults)}");
+				Console.WriteLine($"Expected result:{string.Join(" ", expectedResults)}");
+				Console.ReadLine();
 
 				rate = rate / results.Length;
 				_rate.Add(rate);
@@ -381,22 +380,27 @@ namespace NeuralNetwork
 				//PrintNewLine();
 				
 			}
-			optimumRate=_rate.Average();
-			Console.WriteLine($"Percentage of times obtaining the optimum: {optimumRate}");
+			optimumRate = _rate.Average();
+			Console.WriteLine($"Times obtaining the optimum: {optimumRate*100}%");
 			Console.ReadLine();
 
-			//Nochmal trainieren, wenn Fehlerrate über einer Schwelle liegt
+			//Nochmal trainieren, wenn Optimumsrate unter einer Schwelle liegt
 
 			if (optimumRate < MinOptimum)
 			{
+				Console.WriteLine($"The Optimumrate of {optimumRate * 100}% is not obtained. The Network will be retrained!");
+				var offendingDataSet = _dataSets.FirstOrDefault(x => x.Values.SequenceEqual(values) && x.Targets.SequenceEqual(convertedResults));
+				_dataSets.Remove(offendingDataSet);
+				
+				PrintNewLine();
+				Console.WriteLine("Retraining Network...");
+				PrintNewLine();
 				Train();
 			}
 			else
 			{
-				Console.WriteLine("Now Test the Network with some Inputs");
 				SelfTesting();
 			}
-			
 		}
 
 		#endregion

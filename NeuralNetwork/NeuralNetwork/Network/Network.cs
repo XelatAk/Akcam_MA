@@ -20,11 +20,8 @@ namespace NeuralNetwork.Network
 		#endregion
 
 		#region -- Constructor --
-		public Network(int inputSize, int hiddenSize, int outputSize)//, double? learnRate_output = null, double? learnRate_hidden = null, double? momentum = null)
+		public Network(int inputSize, int hiddenSize, int outputSize)
 		{
-			//LearnRate_Output = learnRate_output ?? 0.5;
-			//LearnRate_Hidden = learnRate_hidden ?? 0.7;
-			//Momentum = momentum ?? 0.0043;
 			InputLayer = new List<Neuron>();
 			HiddenLayer = new List<Neuron>();
 			OutputLayer = new List<Neuron>();
@@ -41,21 +38,22 @@ namespace NeuralNetwork.Network
 		#endregion
 
 		#region -- Training --
-		//public void Train(List<DataSet> dataSets, int numEpochs)
-		//{
-		//	for (var i = 0; i < numEpochs; i++)
-		//	{
-		//		foreach (var dataSet in dataSets)
-		//		{
-		//			ForwardPropagate(dataSet.Values);
-		//			BackPropagate(dataSet.Targets);
-		//		}
-		//	}
-		//}
+		public void Train(List<DataSet> dataSets, int numEpochs)
+		{
+			for (var i = 0; i < numEpochs; i++)
+			{
+				foreach (var dataSet in dataSets)
+				{
+					ForwardPropagate(dataSet.Values);
+					BackPropagate(dataSet.Targets);
+				}
+				Console.WriteLine(numEpochs);
+			}
+		}
 
 		public void Train(List<DataSet> dataSets, double minimumError)
 		{
-			var error = 1.0;
+			var error = 2.0;
 			var numEpochs = 0;
 
 			while (error > minimumError && numEpochs < int.MaxValue)
@@ -108,10 +106,7 @@ namespace NeuralNetwork.Network
 				}
 				error = errors.Average();
 				Console.WriteLine($"Average Error:{error}");
-				//Console.WriteLine(LearnRate_Hidden);
-				//Console.WriteLine(LearnRate_Output);
-				//Console.WriteLine(Momentum);
-
+				
 				numEpochs++;
 				
 			}
@@ -146,7 +141,6 @@ namespace NeuralNetwork.Network
 		{
 			var i = 0;
 			return OutputLayer.Sum(a => a.CalculateError(targets[i++]));
-			//return OutputLayer.Sum(a => Math.Abs(a.CalculateError(targets[i++])));
 		}
 
 		#endregion
