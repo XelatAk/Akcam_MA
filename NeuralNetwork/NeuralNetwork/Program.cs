@@ -40,12 +40,12 @@ namespace NeuralNetwork
 		{
 			PrintNewLine();
 			PrintUnderline(50);
-			Console.WriteLine("Training...");
+			Console.WriteLine($"Training beginning at {DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")}");
 
 			Train();
 
 			PrintNewLine();
-			Console.WriteLine("Training Complete!");
+			Console.WriteLine($"Training complete at {DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")}");
 			PrintNewLine();
 		}
 		

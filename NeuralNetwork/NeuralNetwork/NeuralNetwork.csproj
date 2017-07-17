@@ -46,18 +46,11 @@
     <Compile Include="Network\Neuron.cs" />
     <Compile Include="Network\Sigmoid.cs" />
     <Compile Include="Network\Synapse.cs" />
-    <Compile Include="Network\test.cs" />
-    <Compile Include="Network\test2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="data.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
