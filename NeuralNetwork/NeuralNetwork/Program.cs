@@ -31,7 +31,9 @@ namespace NeuralNetwork
 			Greet();
 			SetupNetwork();
 			TrainNetwork();
-			VerifyTraining();
+			//VerifyTraining();
+			SetupFromTestFile();
+			System.Environment.Exit(1);
 		}
 		#endregion
 
@@ -135,17 +137,17 @@ namespace NeuralNetwork
 
 		private static void SetupNetwork()
 		{
-			if (GetBool("Do you want to read from the space delimited data.txt file? (yes/no/exit)"))
-			{
+			//if (GetBool("Do you want to read from the space delimited data.txt file? (yes/no/exit)"))
+			//{
 				SetupFromFile();
-			}
-			else
-			{
-				SetNumInputParameters();
-				SetNumNeuronsInHiddenLayer();
-				SetNumOutputParameters();
-				GetTrainingData();
-			}
+			//}
+			//else
+			//{
+			//	SetNumInputParameters();
+			//	SetNumNeuronsInHiddenLayer();
+			//	SetNumOutputParameters();
+			//	GetTrainingData();
+			//}
 
 			Console.WriteLine("Creating Network...");
 			_network = new Network.Network(_numInputParameters, _numHiddenLayerNeurons, _numOutputParameters);
@@ -260,7 +262,7 @@ namespace NeuralNetwork
 		private static void SetupFromFile()
 		{
 			_dataSets = new List<DataSet>();
-			var fileContent = File.ReadAllText("data_neu.txt");
+			var fileContent = File.ReadAllText("trainingData.txt");
 			var lines = fileContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
 			if (lines.Length < 2)
@@ -321,7 +323,7 @@ namespace NeuralNetwork
 		{			
 			_rate = new List<double>();
 			double optimumRate;
-			var fileContent = File.ReadAllText("test.txt");
+			var fileContent = File.ReadAllText("testData.txt");
 			var lines = fileContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 		var values = new double[_numInputParameters];
 			var results = _network.Compute(values);
@@ -368,9 +370,9 @@ namespace NeuralNetwork
 						rate += 0;
 				}
 
-				Console.WriteLine($"Output: {string.Join(" ",convertedResults)}");
-				Console.WriteLine($"Expected result:{string.Join(" ", expectedResults)}");
-				Console.ReadLine();
+				//Console.WriteLine($"Output: {string.Join(" ", convertedResults)}");
+				//Console.WriteLine($"Expected result:{string.Join(" ", expectedResults)}");
+				//Console.ReadLine();
 
 				rate = rate / results.Length;
 				_rate.Add(rate);
@@ -382,7 +384,7 @@ namespace NeuralNetwork
 			}
 			optimumRate = _rate.Average();
 			Console.WriteLine($"Times obtaining the optimum: {optimumRate*100}%");
-			Console.ReadLine();
+			
 
 			//Nochmal trainieren, wenn Optimumsrate unter einer Schwelle liegt
 

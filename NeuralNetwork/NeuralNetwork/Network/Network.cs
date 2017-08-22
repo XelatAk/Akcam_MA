@@ -60,40 +60,33 @@ namespace NeuralNetwork.Network
 			{
 				var errors = new List<double>();
 
-				if (200 < numEpochs && numEpochs < 801 && 6000 < numEpochs && numEpochs < 7001 )
+				if (10 < numEpochs && numEpochs < 21)
 				{
 					LearnRate_Hidden = 0.4;
 					LearnRate_Output = 0.2;
 					Momentum = 0.2;
 				}
-				else if (800 < numEpochs && numEpochs < 1301 && 7000 < numEpochs && numEpochs < 8001)
+				else if (20 < numEpochs && numEpochs < 41)
 				{
 					LearnRate_Hidden = 0.2;
 					LearnRate_Output = 0.15;
 					Momentum = 0.05;
 				}
-				else if (1300 < numEpochs && numEpochs < 2001 && 8000 < numEpochs && numEpochs < 9001)
+				else if (40 < numEpochs && numEpochs < 100)
 				{
 					LearnRate_Hidden = 0.1;
 					LearnRate_Output = 0.05;
 					Momentum = 0.025;
 				}
-				else if (2000 < numEpochs && numEpochs < 5001 && 9000 < numEpochs && numEpochs < 10001)
+				else if(99 < numEpochs)
 				{
 					LearnRate_Hidden = 0.05;
 					LearnRate_Output = 0.025;
 					Momentum = 0.01;
 				}
-
-				else if (5000 < numEpochs && numEpochs < 6001 && 10000 < numEpochs)
-				{
-					LearnRate_Hidden = 0.025;
-					LearnRate_Output = 0.01;
-					Momentum = 0.005;
-				}
 				else
 				{
-					LearnRate_Hidden = 0.7;
+					LearnRate_Hidden = 0.6;
 					LearnRate_Output = 0.3;
 					Momentum = 0.4;
 				}
